@@ -1,0 +1,82 @@
+@startuml
+package InUnity <<frame>>
+{
+    object OnPlay #skyblue
+    OnPlay : Start
+
+    object Connect #skyblue
+    Connect : MQTT Broker
+
+    object Subscribe #skyblue
+    Subscribe : Topic list
+
+    object Search_or_Wait #skyblue
+    Search_or_Wait : Topic
+
+    object Serialize_Topic #skyblue
+    Serialize_Topic : Structured Data
+
+    object Convert_Data #skyblue
+    Convert_Data : to Dictionary
+
+    'failed connection
+    object OnConnectionLost #skyblue
+    OnConnectionLost : No Response from Host
+
+    object Retry #gray
+    Retry : Reconnect
+
+    class SubscribeTopics
+    {
+        fetch topics
+    }
+
+    class UnsubscribeTopics
+    {
+        drop topics
+    }
+
+    class Update
+    {
+        ReDo All
+    }
+
+    class DecodeMessage
+    {
+        NewtonSoft
+    }
+
+    class MooxPublisherNode
+    {
+        .pubnode
+    }
+}
+
+
+
+
+'objects
+
+OnPlay -down-> Connect
+Connect -down-> Subscribe : Yes
+Subscribe -down-> Search_or_Wait
+Search_or_Wait -down-> Serialize_Topic
+Serialize_Topic -down-> Convert_Data
+
+
+Connect -left-> OnConnectionLost : No
+OnConnectionLost -up-> Retry
+Retry ..> Connect
+
+
+'classes
+
+OnPlay *.right.* Update
+Subscribe *.right.* SubscribeTopics
+SubscribeTopics *..* Search_or_Wait
+OnConnectionLost *.down.* UnsubscribeTopics
+Serialize_Topic *.right.* DecodeMessage
+DecodeMessage *.down.* Convert_Data
+Convert_Data -down-> MooxPublisherNode
+
+@enduml

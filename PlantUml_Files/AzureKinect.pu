@@ -1,0 +1,124 @@
+@startuml
+
+'Object Declaration
+
+object start #gray
+start : begin process
+
+object AzureKinect #skyblue
+AzureKinect : Camera 1
+AzureKinect : Camera 2
+
+object Capture_3D_Skeleton #skyblue
+Capture_3D_Skeleton : Raw Data
+
+object Merge_Data #skyblue
+Merge_Data : Camera 1
+Merge_Data : Camera 2
+
+object Publish_Data #skyblue
+Publish_Data : Type 71
+
+object fetch_Data #skyblue
+fetch_Data : subscribe
+
+object Convert_Axis #skyblue
+Convert_Axis : Process
+
+object Smoothen_Data #skyblue
+Smoothen_Data : postfix
+Smoothen_Data : prefix
+
+object Convert_Dictionary #skyblue
+Convert_Dictionary : Structured Data
+
+object Output_data_dict #skyblue
+Output_data_dict : publish data
+Output_data_dict : type 75
+
+'Class Declaration
+
+class moox_azure_kinect
+{
+    +body_tracking
+}
+class moox_azure_kinect_merge
+{
+    3D Point Cloud Based
+    +Sitting_Seat()
+}
+class moox_detect_gesture
+{
+    +Detect_rule
+}
+
+class Detect_rule
+{
+    Rule Based
+}
+
+class body_tracking
+{ 
+    C++ based
+}
+
+class MooxPublisherNode
+{
+    +.pubnode
+}
+
+class MooxSubscriberNode
+{
+    +.subnode
+}
+
+
+'objects relationships
+start -down-> AzureKinect
+AzureKinect -down-> Capture_3D_Skeleton
+Capture_3D_Skeleton -down-> Merge_Data
+Merge_Data -down-> Publish_Data
+Publish_Data -down-> fetch_Data
+fetch_Data -right-> Convert_Axis
+Convert_Axis -right-> Smoothen_Data
+Smoothen_Data -right-> Convert_Dictionary
+Convert_Dictionary -right-> Output_data_dict
+
+
+
+'classes relationships
+AzureKinect *.right.* moox_azure_kinect
+Merge_Data *.right.* moox_azure_kinect_merge
+Smoothen_Data *-up-* Detect_rule
+moox_detect_gesture::Detect_rule -left-> Detect_rule
+moox_azure_kinect::body_tracking +-down- body_tracking
+
+Capture_3D_Skeleton *.right.* body_tracking
+MooxPublisherNode::pubnode -right-* Publish_Data
+MooxSubscriberNode::subnode -right-* fetch_Data
+
+'annotations
+
+note left of AzureKinect
+    Only Camera 1
+    is used, Camera 2
+    temporarily disabled
+end note
+
+note top of Convert_Axis
+    Uses Detect_rule
+    prefix module
+end note
+
+note left of Capture_3D_Skeleton
+    Un Rotated Data
+    Corrected by
+    Calibration Json
+end note
+
+note left of Merge_Data
+    Camera 2 Ignored
+end note
+
+
+@end uml
